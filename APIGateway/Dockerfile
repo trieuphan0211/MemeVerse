@@ -8,6 +8,9 @@ WORKDIR /app
 # Copy gradle files
 COPY gradlew gradlew.bat ./
 COPY gradle/ gradle/
+
+# Make gradlew executable and fix line endings (for Windows compatibility)
+RUN chmod +x gradlew && sed -i 's/\r$//' gradlew
 COPY build.gradle settings.gradle ./
 
 # Copy source code

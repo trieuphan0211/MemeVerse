@@ -1,0 +1,7 @@
+version: "3"
+services:
+  api-gateway:
+    build: .
+    image: api-gateway
+    volumes:
+      - ./APIGateway/build/libs/APIGateway-1.0.0.jar:/app/APIGateway-1.0.0.jar

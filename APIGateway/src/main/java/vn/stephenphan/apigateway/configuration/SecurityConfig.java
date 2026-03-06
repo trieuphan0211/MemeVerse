@@ -49,7 +49,6 @@ public class SecurityConfig {
                 )
                 // Standard Basic Auth (often used for Eureka/Internal)
                 .httpBasic(Customizer.withDefaults())
-
                 // JWT Resource Server for User Tokens
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))

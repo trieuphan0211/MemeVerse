@@ -47,6 +47,8 @@ services:
       POSTGRES_PASSWORD: admin
     volumes:
       - ./user_postgres_data:/var/lib/postgresql/data
+    networks:
+      - web-network
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U admin" ]
       interval: 10s
@@ -71,6 +73,14 @@ services:
     container_name: gateway
     volumes:
       - ./APIGateway/build/libs/APIGateway-1.0.0.jar:/app/APIGateway.jar
+    networks:
+      - web-network
+  users-service:
+    build: ./UserService
+    image: users-service
+    container_name: users-service
+    volumes:
+      - ./UserService/build/libs/UserService-1.0.0.jar:/app/UserService.jar
     networks:
       - web-network
   keycloak:

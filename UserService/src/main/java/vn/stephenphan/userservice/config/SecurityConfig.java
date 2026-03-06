@@ -22,22 +22,12 @@ import java.util.Collection;
 @EnableMethodSecurity
 @Log4j2
 public class SecurityConfig {
-    @Value("${user.username}")
-    private String userName;
-
-    @Value("${user.password}")
-    private String userPassword;
-
-    @Value("${user.role}")
-    private String userRole;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        // Specific rules first
-                        .requestMatchers("/eureka/**").hasRole("SUPERADMIN")
                         // Re-enable these as needed, ensuring they follow a hierarchy
                         // .requestMatchers("/v1/admin/**").hasRole("ADMIN")
                         // .requestMatchers("/v1/internal/**").hasAnyRole("SERVICE", "ADMIN")
@@ -45,9 +35,6 @@ public class SecurityConfig {
                         // Catch-all
                         .anyRequest().authenticated()
                 )
-                // Standard Basic Auth (often used for Eureka/Internal)
-                .httpBasic(Customizer.withDefaults())
-
                 // JWT Resource Server for User Tokens
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))

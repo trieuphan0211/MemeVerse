@@ -36,6 +36,22 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+  # Document database:
+  users_db:
+    image: postgres:15
+    ports:
+      - "7073:5432"
+    environment:
+      POSTGRES_DB: users
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - ./user_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   # SERVICE
   nginx-proxy:
     container_name: nginx-proxy

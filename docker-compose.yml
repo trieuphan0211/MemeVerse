@@ -1,24 +1,5 @@
 version: "3"
 services:
-  nginx-proxy:
-    container_name: nginx-proxy
-    image: nginx:alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-    networks:
-      - web-network
-      - s3-network
-  api-gateway:
-    build: .
-    image: api-gateway
-    volumes:
-      - ./APIGateway/build/libs/APIGateway-1.0.0.jar:/app/APIGateway.jar
-    networks:
-      - web-network
   # DATABASE
   # Database for Keycloak
   keycloakdb:
@@ -56,6 +37,26 @@ services:
       timeout: 5s
       retries: 5
   # SERVICE
+  nginx-proxy:
+    container_name: nginx-proxy
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - web-network
+      - s3-network
+  api-gateway:
+    build: ./APIGateway
+    image: api-gateway
+    container_name: gateway
+    volumes:
+      - ./APIGateway/build/libs/APIGateway-1.0.0.jar:/app/APIGateway.jar
+    networks:
+      - web-network
   keycloak:
     image: quay.io/keycloak/keycloak:latest
     container_name: keycloak
@@ -82,8 +83,8 @@ services:
         #KC_HOSTNAME: "sso.stephen.io.vn"
         #KC_HOSTNAME_URL: "https://sso.stephen.io.vn"
       #KC_HOSTNAME_ADMIN_URL: "https://sso.stephen.io.vn"
-    ports:
-      - "8080:8080"
+#    ports:
+#      - "8080:8080"
     networks:
       - web-network
     depends_on:

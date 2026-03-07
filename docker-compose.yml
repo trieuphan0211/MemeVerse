@@ -20,6 +20,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
   # Document database:
   document_db:
     image: postgres:15
@@ -36,7 +37,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  # Document database:
+
+  # Users database:
   users_db:
     image: postgres:15
     ports:
@@ -54,6 +56,46 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  # Memes database:
+  memes_db:
+    image: postgres:15
+    ports:
+      - "7074:5432"
+    environment:
+      POSTGRES_DB: memes
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - ./memes_postgres_data:/var/lib/postgresql/data
+    networks:
+      - web-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # File Storage database:
+  filestorage_db:
+    image: postgres:15
+    ports:
+      - "7075:5432"
+    environment:
+      POSTGRES_DB: filestorage
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - ./filestorage_postgres_data:/var/lib/postgresql/data
+    networks:
+      - web-network
+      - s3-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # SERVICE
   nginx-proxy:
     container_name: nginx-proxy
@@ -67,6 +109,7 @@ services:
     networks:
       - web-network
       - s3-network
+
   api-gateway:
     build: ./APIGateway
     image: api-gateway
@@ -75,6 +118,10 @@ services:
       - ./APIGateway/build/libs/APIGateway-1.0.0.jar:/app/APIGateway.jar
     networks:
       - web-network
+    depends_on:
+      - users_db
+      - memes_db
+
   users-service:
     build: ./UserService
     image: users-service
@@ -83,6 +130,40 @@ services:
       - ./UserService/build/libs/UserService-1.0.0.jar:/app/UserService.jar
     networks:
       - web-network
+    depends_on:
+      users_db:
+        condition: service_healthy
+
+#  memes-service:
+#    build: ./MemeService
+#    image: memes-service
+#    container_name: memes-service
+#    volumes:
+#      - ./MemeService/build/libs/MemeService-1.0.0.jar:/app/MemeService.jar
+#    networks:
+#      - web-network
+#      - s3-network
+#    depends_on:
+#      memes_db:
+#        condition: service_healthy
+#      minio:
+#        condition: service_started
+#
+#  filestorage-service:
+#    build: ./FileStorageService
+#    image: filestorage-service
+#    container_name: filestorage-service
+#    volumes:
+#      - ./FileStorageService/build/libs/FileStorageService-1.0.0.jar:/app/FileStorageService.jar
+#    networks:
+#      - web-network
+#      - s3-network
+#    depends_on:
+#      filestorage_db:
+#        condition: service_healthy
+#      minio:
+#        condition: service_started
+
   keycloak:
     image: quay.io/keycloak/keycloak:latest
     container_name: keycloak
@@ -101,21 +182,12 @@ services:
       KC_DB_PASSWORD: keycloak
       KEYCLOAK_ADMIN: admin          # Account login admin role
       KEYCLOAK_ADMIN_PASSWORD: admin # Password admin
-        #KC_HOSTNAME: sso.stephen.io.vn
-        #KC_HTTP_ENABLED: "true"
-        #KC_PROXY_HEADERS: xforwarded
-        #KC_HOSTNAME_STRICT: "false"
-        #KC_HTTP_STRICT_HTTPS: "false"
-        #KC_HOSTNAME: "sso.stephen.io.vn"
-        #KC_HOSTNAME_URL: "https://sso.stephen.io.vn"
-      #KC_HOSTNAME_ADMIN_URL: "https://sso.stephen.io.vn"
-#    ports:
-#      - "8080:8080"
     networks:
       - web-network
     depends_on:
       keycloakdb:
         condition: service_healthy
+
   minio:
     image: quay.io/minio/minio
     container_name: minio
@@ -130,6 +202,7 @@ services:
     command: server /data --console-address ":9001"
     networks:
       - s3-network
+
 networks:
   web-network:
     driver: bridge

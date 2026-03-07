@@ -1,8 +1,8 @@
 spring:
   application:
-    name: UserService
+    name: MemeService
   datasource:
-    url: jdbc:postgresql://localhost:7073/users
+    url: jdbc:postgresql://memes_db:5432/memes
     username: admin
     password: admin
   jpa:
@@ -19,18 +19,30 @@ spring:
         jwt:
           issuer-uri: https://sso.stephen.io.vn/realms/MemeVerse
           jwk-set-uri: https://sso.stephen.io.vn/realms/MemeVerse/protocol/openid-connect/certs
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
 
 server:
-  port: 8081
+  port: 8082
 
 # Eureka Configuration
 eureka:
   client:
     service-url:
-      defaultZone: http://admin:admin@localhost:8080/eureka/
+      defaultZone: http://admin:admin@gateway.stephen.io.vn/eureka/
     register-with-eureka: true
     fetch-registry: true
   instance:
     prefer-ip-address: true
     lease-renewal-interval-in-seconds: 10
     lease-expiration-duration-in-seconds: 30
+
+# MinIO Configuration
+minio:
+  endpoint: http://minio:9000
+  access-key: root
+  secret-key: Trieuphan@0372106260
+  bucket-name: memes

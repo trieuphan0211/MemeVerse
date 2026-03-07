@@ -1,10 +1,8 @@
-package vn.stephenphan.userservice.config;
+package vn.stephenphan.memeservice.config;
 
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -24,28 +22,26 @@ import java.util.Collection;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/users/**").permitAll()
+                        // Public endpoints
+                        .requestMatchers("/api/v1/memes/public/**").permitAll()
+                        .requestMatchers("/api/v1/memes/*/comments").permitAll()
+                        .requestMatchers("/api/v1/comments/*/replies").permitAll()
+                        .requestMatchers("/api/v1/memes/*/vote").authenticated()
                         // Authenticated endpoints
-                        .requestMatchers("/api/v1/me/**").authenticated()
-                        .requestMatchers("/api/v1/sync").authenticated()
-                        .requestMatchers("/api/v1/internal/**").hasAnyRole("ADMIN","SERVICE")
-                        // Re-enable these as needed, ensuring they follow a hierarchy
-                        // .requestMatchers("/v1/admin/**").hasRole("ADMIN")
-                        // .requestMatchers("/v1/internal/**").hasAnyRole("SERVICE", "ADMIN")
-
+                        .requestMatchers("/api/v1/memes/following").authenticated()
+                        .requestMatchers("/api/v1/memes").authenticated()
+                        .requestMatchers("/api/v1/memes/**").authenticated()
                         // Catch-all
                         .anyRequest().authenticated()
                 )
-                // JWT Resource Server for User Tokens
+                // JWT Resource Server
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
                 );
-        // Enable if this service also acts as a client to call other services
-//                .oauth2Client(Customizer.withDefaults());
 
         return http.build();
     }

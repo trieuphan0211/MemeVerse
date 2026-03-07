@@ -7,7 +7,7 @@
         <processorPath useClasspath="false">
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.42/8365263844ebb62398e0dc33057ba10ba472d3b8/lombok-1.18.42.jar" />
         </processorPath>
-        <module name="UserService.main" />
+        <module name="FileStorageService.main" />
       </profile>
     </annotationProcessing>
   </component>
@@ -16,6 +16,9 @@
       <module name="APIGateway" options="-parameters" />
       <module name="APIGateway.main" options="-parameters" />
       <module name="APIGateway.test" options="-parameters" />
+      <module name="FileStorageService" options="-parameters" />
+      <module name="FileStorageService.main" options="-parameters" />
+      <module name="FileStorageService.test" options="-parameters" />
       <module name="UserService" options="-parameters" />
       <module name="UserService.main" options="-parameters" />
       <module name="UserService.test" options="-parameters" />

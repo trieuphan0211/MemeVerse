@@ -2,12 +2,12 @@ package vn.stephenphan.filestorageservice.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import vn.stephenphan.filestorageservice.config.StorageProperties;
 import vn.stephenphan.filestorageservice.model.FileEntity;
 import vn.stephenphan.filestorageservice.model.FileUploadRequest;
 import vn.stephenphan.filestorageservice.model.FileUploadResponse;
@@ -25,15 +25,7 @@ public class FileStorageService {
 
     private final FileRepository fileRepository;
     private final MinioStorageService minioStorageService;
-
-    @Value("#{${storage.buckets}}")
-    private java.util.Map<String, String> buckets;
-
-    @Value("#{${storage.allowed-types}}")
-    private java.util.Map<String, List<String>> allowedTypes;
-
-    @Value("#{${storage.max-sizes}}")
-    private java.util.Map<String, Integer> maxSizes;
+    private final StorageProperties storageProperties;
 
     /**
      * Upload file
@@ -43,10 +35,9 @@ public class FileStorageService {
         try {
             // Validate service name
             String serviceName = request.getServiceName();
-            if (!buckets.containsKey(serviceName)) {
+            if (!storageProperties.getBuckets().containsKey(serviceName)) {
                 serviceName = "default";
             }
-
             // Validate file type
             validateFileType(file, serviceName);
 
@@ -54,7 +45,7 @@ public class FileStorageService {
             validateFileSize(file, serviceName);
 
             // Get bucket name
-            String bucketName = buckets.get(serviceName);
+            String bucketName = storageProperties.getBuckets().get(serviceName);
 
             // Generate unique filename
             String storedFilename = minioStorageService.generateUniqueFilename(file.getOriginalFilename());
@@ -247,9 +238,9 @@ public class FileStorageService {
     // ==================== Helper Methods ====================
 
     private void validateFileType(MultipartFile file, String serviceName) {
-        List<String> allowed = allowedTypes.get(serviceName);
+        List<String> allowed = storageProperties.getAllowedTypes().get(serviceName);
         if (allowed == null) {
-            allowed = allowedTypes.get("default");
+            allowed = storageProperties.getAllowedTypes().get("default");
         }
 
         if (allowed != null && !allowed.isEmpty()) {
@@ -261,7 +252,7 @@ public class FileStorageService {
     }
 
     private void validateFileSize(MultipartFile file, String serviceName) {
-        Integer maxSize = maxSizes.get(serviceName);
+        Integer maxSize = storageProperties.getMaxSizes().get(serviceName);
         if (maxSize == null) {
             maxSize = 10; // Default 10MB
         }

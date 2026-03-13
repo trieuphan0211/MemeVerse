@@ -2,8 +2,7 @@ spring:
   application:
     name: FileStorageService
   datasource:
-    #    url: jdbc:postgresql://filestorage_db:5432/filestorage
-    url: jdbc:postgresql://100.115.112.37:7075/filestorage
+    url: jdbc:postgresql://localhost:7075/filestorage
     username: admin
     password: admin
   jpa:
@@ -18,8 +17,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: https://sso.stephen.io.vn/realms/MemeVerse
-          jwk-set-uri: https://sso.stephen.io.vn/realms/MemeVerse/protocol/openid-connect/certs
+          issuer-uri: http://localhost:8080/realms/MemeVerse
+          jwk-set-uri: http://localhost:8080/realms/MemeVerse/protocol/openid-connect/certs
   servlet:
     multipart:
       enabled: true
@@ -33,7 +32,7 @@ server:
 eureka:
   client:
     service-url:
-      defaultZone: http://admin:admin@gateway.stephen.io.vn/eureka/
+      defaultZone: http://admin:admin@localhost:8080/eureka/
     register-with-eureka: true
     fetch-registry: true
   instance:
@@ -43,18 +42,16 @@ eureka:
 
 # MinIO Configuration
 minio:
-  endpoint: https://s3.stephen.io.vn
+  endpoint: http://localhost:9000
   access-key: root
-  secret-key: Trieuphan@0372106260
+  secret-key: key
 
 # File Storage Configuration
 storage:
-  # Buckets for different services
   buckets:
     users: memeverse-users
     memes: memeverse-memes
     default: memeverse-files
-  # File types allowed per bucket
   allowed-types:
     users:
       - image/jpeg
@@ -68,9 +65,7 @@ storage:
       - image/webp
       - video/mp4
       - video/webm
-  # Max file sizes (in MB)
   max-sizes:
     users: 5
     memes: 20
-  # Presigned URL expiration (in minutes)
   presigned-url-expiry: 15

@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: UserService
+  datasource:
+#    url: jdbc:postgresql://100.115.112.37:7073/users
+    url: jdbc:postgresql://users_db:5432/users
+    username: admin
+    password: admin
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://sso.stephen.io.vn/realms/MemeVerse
+          jwk-set-uri: https://sso.stephen.io.vn/realms/MemeVerse/protocol/openid-connect/certs
+server:
+  port: 8081
+# Eureka Configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://admin:admin@gateway.stephen.io.vn/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+#logging:
+#  level:
+#    org.springframework.security: DEBUG
